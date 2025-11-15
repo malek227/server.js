@@ -1,0 +1,626 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محاكاة تطبيق المحفظة (إصدار الخادم الجاهز)</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <style>
+        /* (كود CSS لم يتغير) */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 20px;
+            text-align: right;
+        }
+
+        .container {
+            max-width: 450px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 30px 20px;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 24px;
+        }
+
+        #login-form-container {
+            padding: 20px;
+            border: 1px solid #eee;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+        }
+
+        #login-form-container input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 16px;
+            text-align: right;
+        }
+
+        #login-form-container button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+        #login-form-container button:hover { background-color: #0056b3; }
+        
+        #new-account-btn {
+            background-color: #2ecc71;
+            margin-top: 10px;
+        }
+        #new-account-btn:hover { background-color: #27ae60; }
+
+
+        #wallet-container {
+            display: none;
+        }
+
+        .welcome-message {
+            font-size: 16px;
+            font-weight: bold;
+            color: #34495e;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .balance-info {
+            background-color: #007bff;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .balance-amount { font-size: 32px; font-weight: bold; }
+        
+        .actions-group {
+            margin-bottom: 20px;
+        }
+        
+        .actions-group h3 {
+            color: #34495e;
+            font-size: 16px;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+            text-align: right;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .action-item {
+            text-align: center;
+            margin: 8px;
+            width: 80px; 
+            padding: 5px 0;
+        }
+
+        .action-icon {
+            font-size: 24px;
+            color: #007bff;
+            background-color: #eaf5ff; 
+            border-radius: 12px;
+            padding: 15px;
+            display: block;
+            margin: 0 auto 8px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        .action-item:hover .action-icon {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .action-item span { 
+            font-size: 12px; 
+            color: #34495e;
+            display: block;
+            font-weight: bold;
+        }
+
+        .print-btn {
+            background-color: #9b59b6;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-bottom: 15px;
+            width: 100%;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+            direction: rtl;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 350px;
+            border-radius: 10px;
+            text-align: right;
+        }
+        .close-btn { color: #aaa; float: left; font-size: 28px; font-weight: bold; }
+        .close-btn:hover, .close-btn:focus { color: #000; text-decoration: none; cursor: pointer; }
+        .modal-content input, .modal-content select {
+            width: 95%;
+            padding: 10px;
+            margin: 8px 0 15px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .modal-submit {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+        
+        .crypto-balance {
+            background-color: #23282b; 
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .crypto-balance h4 { margin: 0; font-size: 16px; }
+        .crypto-balance p { font-size: 24px; font-weight: bold; margin: 5px 0 0; }
+        
+        .crypto-pair {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 15px;
+        }
+        .crypto-pair:last-child { border-bottom: none; }
+        .pair-name { font-weight: bold; color: #333; }
+        .pair-price { color: #00b894; } 
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>محاكاة تطبيق المحفظة الإلكترونية</h1>
+        
+        <input type="hidden" id="logged_in_username" value="">
+        <input type="hidden" id="user_current_balance" value="0">
+        
+        <div id="login-form-container">
+            <h2>تسجيل الدخول</h2>
+            
+            <p style="font-size:12px; color:red; text-align:center;">
+                ⚠️ ملاحظة: لتشغيل هذا، يجب أن يكون الخادم الخلفي (server.js) يعمل محلياً أو على الإنترنت.
+            </p>
+
+            <form onsubmit="return handleLogin(event)">
+                <input type="tel" id="phone_number" placeholder="رقم الهاتف (مثال: 77xxxxxxx)" required pattern="[0-9]{9,12}">
+                <input type="password" id="password" placeholder="كلمة المرور" required>
+                
+                <button type="submit">
+                    <i class="fas fa-sign-in-alt"></i> دخول
+                </button>
+            </form>
+            
+             <button id="new-account-btn" onclick="handleRegister()">
+                <i class="fab fa-google"></i> فتح حساب جديد (عمولة 20%)
+            </button>
+        </div>
+
+
+        <div id="wallet-container">
+            
+            <div class="welcome-message" id="welcome_message">أهلاً بك، مستخدم!</div>
+
+            <div class="balance-info">
+                <div>الرصيد الكلي ($)</div>
+                <div class="balance-amount" id="display_balance">0.00 $</div>
+                <p style="font-size:14px; margin:0;">(يتم تحديث الرصيد من الخادم)</p>
+            </div>
+            
+            <button class="print-btn" onclick="printOperation()">
+                <i class="fas fa-print"></i> طباعة كشف العملية
+            </button>
+
+
+            <div class="actions-group">
+                <h3><i class="fas fa-exchange-alt"></i> العمليات المالية</h3>
+                <div class="actions">
+                    <div class="action-item" onclick="openModal('depositModal')">
+                        <i class="fas fa-arrow-down action-icon" style="color:#2ecc71; background-color: #e6ffe6;"></i>
+                        <span>إيداع</span>
+                    </div>
+                    <div class="action-item" onclick="openModal('withdrawalModal')">
+                        <i class="fas fa-arrow-up action-icon" style="color:#e74c3c; background-color: #fff0f0;"></i>
+                        <span>سحب</span>
+                    </div>
+                    <div class="action-item" onclick="openModal('transferModal')">
+                        <i class="fas fa-paper-plane action-icon"></i>
+                        <span>إرسال حوالة</span>
+                    </div>
+                    <div class="action-item" onclick="alert('سيتم عرض قائمة المعاملات وإمكانية طباعة كشف PDF.')">
+                        <i class="fas fa-file-invoice action-icon"></i>
+                        <span>كشف حساب</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="actions-group">
+                <h3><i class="fas fa-phone-alt"></i> خدمات الاتصالات والباقات</h3>
+                <div class="actions">
+                    <div class="action-item" onclick="openModal('chargeSelectModal')">
+                        <i class="fas fa-mobile-alt action-icon"></i>
+                        <span>شحن الرصيد</span>
+                    </div>
+                    <div class="action-item" onclick="alert('تظهر هنا قائمة الباقات للاختيار منها.')">
+                        <i class="fas fa-globe action-icon"></i>
+                        <span>باقات إنترنت</span>
+                    </div>
+                    <div class="action-item" onclick="openModal('tuitionModal')">
+                        <i class="fas fa-school action-icon"></i>
+                        <span>تسديد رسوم</span>
+                    </div>
+                    <div class="action-item" onclick="openModal('cryptoModal')">
+                        <i class="fab fa-bitcoin action-icon" style="color:#f7931a; background-color: #fff8eb;"></i>
+                        <span>عملات رقمية</span>
+                    </div>
+                    <div class="action-item" onclick="openModal('storeBlogModal')">
+                         <i class="fas fa-shopping-basket action-icon" style="color:#e67e22; background-color: #fffaf0;"></i>
+                        <span>متجر وخدمات</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="actions-group">
+                <h3><i class="fas fa-bank"></i> البنوك وشركات الصرافة (محاكاة)</h3>
+                <div class="actions">
+                    <div class="action-item" onclick="alert('هذا محاكي لتطبيق كريمي جوال الأصلي.')">
+                        <i class="fas fa-qrcode action-icon" style="color:#007bff;"></i>
+                        <span>كريمي جوال</span>
+                    </div>
+                    <div class="action-item" onclick="alert('محاكاة تطبيق القطيبي: هنا يتم تنفيذ خدماته.')">
+                        <i class="fas fa-money-check-dollar action-icon" style="color:#1abc9c;"></i>
+                        <span>القطيبي</span>
+                    </div>
+                    <div class="action-item" onclick="alert('محاكاة تطبيق بنك القاسمي.')">
+                        <i class="fas fa-handshake action-icon" style="color:#f1c40f;"></i>
+                        <span>القاسمي</span>
+                    </div>
+                    <div class="action-item" onclick="alert('محاكاة تطبيق بنك التضامن.')">
+                        <i class="fas fa-piggy-bank action-icon" style="color:#e74c3c;"></i>
+                        <span>التضامن</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="cryptoModal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn" onclick="closeModal('cryptoModal')">&times;</span>
+        <h2><i class="fab fa-bitcoin"></i> التداول الافتراضي (Binance Style)</h2>
+        <div class="crypto-balance">
+            <h4>إجمالي الرصيد الافتراضي (USDT)</h4>
+            <p>1,500.00 $</p>
+        </div>
+        <h4 style="text-align: center; color: #333;">أزواج التداول الحالية (محاكاة)</h4>
+        <div class="crypto-pair">
+            <span class="pair-name">BTC/USDT</span>
+            <span class="pair-price">60,540.23 $</span>
+        </div>
+        <div class="crypto-pair">
+            <span class="pair-name">ETH/USDT</span>
+            <span class="pair-price">3,210.88 $</span>
+        </div>
+        <div class="crypto-pair" style="border-bottom: 0;">
+            <span class="pair-name">BNB/USDT</span>
+            <span class="pair-price">580.90 $</span>
+        </div>
+        <button class="modal-submit" onclick="alert('بدء عملية التداول الافتراضي. (هذه محاكاة فقط).'); closeModal('cryptoModal');">
+            بدء التداول الافتراضي والربح
+        </button>
+        <p style="font-size: 12px; color: #777; text-align: center; margin-top: 10px;">*هذه محاكاة لعرض البيانات ولا ترتبط بأسعار حقيقية أو ربح فعلي.</p>
+      </div>
+    </div>
+
+
+    <div id="chargeSelectModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('chargeSelectModal')">&times;</span>
+            <h2>اختر شبكة الاتصال</h2>
+            <div class="external-links" style="text-align: center;">
+                <a href="#" onclick="openChargeModal('77'); closeModal('chargeSelectModal'); return false;">
+                    <i class="fas fa-signal"></i> شحن رصيد 77
+                </a>
+                <a href="#" onclick="openChargeModal('73'); closeModal('chargeSelectModal'); return false;">
+                    <i class="fas fa-signal"></i> شحن رصيد 73
+                </a>
+                <a href="#" onclick="openChargeModal('71'); closeModal('chargeSelectModal'); return false;">
+                    <i class="fas fa-signal"></i> شحن رصيد 71
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div id="chargeModal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn" onclick="closeModal('chargeModal')">&times;</span>
+        <h2 id="chargeTitle">شحن الرصيد</h2>
+        <form onsubmit="return handleCharge(event)">
+            <label for="charge_number">رقم الهاتف (<span id="prefixDisplay"></span>xxxxxxx)</label>
+            <input type="number" id="charge_number" name="charge_number" placeholder="أدخل رقم الهاتف" required>
+            <label for="charge_amount">المبلغ</label>
+            <input type="number" id="charge_amount" name="charge_amount" placeholder="أدخل مبلغ الشحن بالريال اليمني" required>
+            <input type="hidden" id="charge_prefix">
+            <button type="submit" class="modal-submit">شحن الرصيد</button>
+        </form>
+      </div>
+    </div>
+    
+    <div id="storeBlogModal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn" onclick="closeModal('storeBlogModal')">&times;</span>
+        <h2>المتجر والخدمات الخارجية</h2>
+        <div class="external-links">
+            <a href="https://www.amazon.com/dp/B0CHTVMXZJ?th=1&linkCode=ll1&tag=454722115130-20&linkId=b3ded88e567e98614117d340e61aa03e&language=en_US&ref_=as_li_ss_tl" target="_blank">
+                <i class="fas fa-store"></i> متجر أمازون
+            </a>
+            <a href="https://malekahmed2.blogspot.com" target="_blank">
+                <i class="fab fa-blogger-b"></i> مدونة malekahmed2
+            </a>
+        </div>
+      </div>
+    </div>
+
+    <div id="tuitionModal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn" onclick="closeModal('tuitionModal')">&times;</span>
+        <h2>تسديد الرسوم</h2>
+        <form onsubmit="return handleTuition(event)">
+            <label for="institution">الجامعة أو المدرسة</label>
+            <input type="text" id="institution" name="institution" placeholder="أدخل اسم المؤسسة التعليمية" required>
+            <label for="student_id">رقم قيد الطالب</label>
+            <input type="text" id="student_id" name="student_id" placeholder="أدخل رقم القيد" required>
+            <label for="tuition_amount">المبلغ المطلوب تسديده (بالعملة المحلية)</label>
+            <input type="number" id="tuition_amount" name="tuition_amount" placeholder="أدخل المبلغ" required>
+            <button type="submit" class="modal-submit">تسديد الرسوم</button>
+        </form>
+      </div>
+    </div>
+    
+    <div id="transferModal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn" onclick="closeModal('transferModal')">&times;</span>
+        <h2>إرسال حوالة</h2>
+        <form onsubmit="return handleTransfer(event)">
+            <label for="recipient">اسم المستفيد</label>
+            <input type="text" id="recipient" name="recipient" placeholder="أدخل اسم المستفيد" required>
+            <label for="transfer_amount">المبلغ</label>
+            <input type="number" id="transfer_amount" name="transfer_amount" placeholder="المبلغ المراد إرساله" required>
+            <label for="currency">العملة</label>
+            <select id="currency" name="currency">
+                <option value="YER">ريال يمني</option>
+                <option value="SAR">ريال سعودي</option>
+                <option value="USD">دولار أمريكي</option>
+            </select>
+            <button type="submit" class="modal-submit">إرسال الحوالة</button>
+        </form>
+      </div>
+    </div>
+
+    <div id="depositModal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn" onclick="closeModal('depositModal')">&times;</span>
+        <h2>إيداع في المحفظة</h2>
+        <form onsubmit="return handleSimpleOperation(event, 'الإيداع')">
+            <label for="dep_amount">المبلغ المراد إيداعه</label>
+            <input type="number" id="dep_amount" name="dep_amount" placeholder="أدخل المبلغ" required>
+            <button type="submit" class="modal-submit">إتمام الإيداع</button>
+        </form>
+      </div>
+    </div>
+    
+    <div id="withdrawalModal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn" onclick="closeModal('withdrawalModal')">&times;</span>
+        <h2>سحب من المحفظة</h2>
+        <form onsubmit="return handleSimpleOperation(event, 'السحب')">
+            <label for="with_amount">المبلغ المراد سحبه</label>
+            <input type="number" id="with_amount" name="with_amount" placeholder="أدخل المبلغ" required>
+            <button type="submit" class="modal-submit">إتمام السحب</button>
+        </form>
+      </div>
+    </div>
+
+
+    
+    <script>
+        
+        // *************************************************************************
+        // ** ملاحظة هامة: يجب تغيير هذا الرابط إلى رابط الخادم الفعلي عند الاستضافة **
+        // *************************************************************************
+        const BASE_SERVER_URL = 'http://localhost:3000'; 
+        // إذا كنت تستخدم استضافة حقيقية، غيّرها إلى: 
+        // const BASE_SERVER_URL = 'https://your-live-server.com'; 
+
+
+        async function handleLogin(event) {
+            event.preventDefault(); 
+            const phoneNumber = document.getElementById('phone_number').value;
+            const password = document.getElementById('password').value;
+
+            const serverUrl = `${BASE_SERVER_URL}/login`; 
+
+            try {
+                const response = await fetch(serverUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone: phoneNumber, password: password }),
+                });
+
+                const data = await response.json();
+
+                if (response.ok) { 
+                     document.getElementById('login-form-container').style.display = 'none';
+                     document.getElementById('wallet-container').style.display = 'block';
+                     
+                     const username = data.username || 'مستخدم كريمي';
+                     const balance = data.balance || 0.00;
+
+                     document.getElementById('logged_in_username').value = username;
+                     document.getElementById('user_current_balance').value = balance;
+                     
+                     document.getElementById('welcome_message').textContent = `أهلاً بك، ${username}!`;
+                     document.getElementById('display_balance').textContent = `${balance.toFixed(2)} $`;
+
+                     alert(`✅ تم تسجيل الدخول بنجاح! مرحباً، ${username}. رصيدك الحالي: ${balance.toFixed(2)} $`);
+                     
+                } else { 
+                    alert(`❌ فشل تسجيل الدخول: ${data.message} - تحقق من بياناتك.`);
+                }
+            } catch (error) {
+                console.error('Login failed:', error);
+                alert(`❌ فشل الاتصال بالخادم. تأكد من تشغيل الخادم على العنوان: ${BASE_SERVER_URL}`);
+            }
+            return false;
+        }
+
+        async function handleRegister() {
+             const serverUrl = `${BASE_SERVER_URL}/register`;
+             
+             try {
+                const response = await fetch(serverUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ google_id: 'mock-google-id', phone: 'mock-phone-73' }),
+                });
+                
+                const data = await response.json();
+                alert(`✅ عملية التسجيل (محاكاة) ناجحة: ${data.message}`);
+             } catch (error) {
+                 alert(`❌ فشل الاتصال بخادم التسجيل. تأكد من تشغيل الخادم على العنوان: ${BASE_SERVER_URL}`);
+             }
+        }
+
+
+        // دوال المحاكاة لبقية الأيقونات (لم تتغير)
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function printOperation() {
+            const username = document.getElementById('logged_in_username').value || 'المستخدم';
+            alert(`تم إصدار إشعار كشف العملية للسيد/ة ${username} (محاكاة).`);
+        }
+        
+        function openChargeModal(prefix) {
+            document.getElementById('chargeTitle').textContent = `شحن رصيد ${prefix}`;
+            document.getElementById('prefixDisplay').textContent = prefix;
+            document.getElementById('charge_prefix').value = prefix;
+            openModal('chargeModal');
+        }
+
+        function handleCharge(event) {
+            event.preventDefault(); 
+            const prefix = document.getElementById('charge_prefix').value;
+            const number = document.getElementById('charge_number').value;
+            const amount = document.getElementById('charge_amount').value;
+            
+            alert(`✅ عملية شحن رصيد ${prefix} ناجحة! الهاتف: ${number} المبلغ: ${amount} ريال يمني (تمت المحاكاة)`);
+            closeModal('chargeModal');
+            return false;
+        }
+
+        function handleTuition(event) {
+            event.preventDefault(); 
+            const institution = document.getElementById('institution').value;
+            const student_id = document.getElementById('student_id').value;
+            const amount = document.getElementById('tuition_amount').value;
+            
+            alert(`✅ تم تسديد الرسوم بنجاح! المؤسسة: ${institution} المبلغ: ${amount} (تمت المحاكاة)`);
+            closeModal('tuitionModal');
+            return false;
+        }
+        
+        function handleTransfer(event) {
+            event.preventDefault(); 
+            const recipient = document.getElementById('recipient').value;
+            const amount = document.getElementById('transfer_amount').value;
+            const currency = document.getElementById('currency').value;
+            
+            alert(`✅ تم إرسال الحوالة بنجاح! المستفيد: ${recipient} المبلغ: ${amount} ${currency} (تمت المحاكاة)`);
+            closeModal('transferModal');
+            return false;
+        }
+
+        function handleSimpleOperation(event, type) {
+            event.preventDefault();
+            const inputId = (type === 'الإيداع') ? 'dep_amount' : 'with_amount';
+            const amount = document.getElementById(inputId).value;
+
+            alert(`✅ عملية ${type} بمبلغ ${amount} دولار (محاكاة) تمت بنجاح.`);
+
+            closeModal((type === 'الإيداع') ? 'depositModal' : 'withdrawalModal');
+            return false;
+        }
+
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = "none";
+            }
+        }
+    </script>
+
+</body>
+</html>
+
