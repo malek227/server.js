@@ -1,0 +1,22 @@
+{
+  "name": "my-wallet-app-server",
+  "version": "1.0.0",
+  "description": "Backend mock server for the wallet application using Express.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "express",
+    "node",
+    "wallet",
+    "backend"
+  ],
+  "author": "Your Name",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
+  }
+}
